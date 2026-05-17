@@ -48,12 +48,23 @@ app.use(
   })
 );
 
+// Root route
+app.get("/", (_req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "KhataTrack API is live 🚀",
+    health: "/health",
+    api: "/api",
+  });
+});
+
 // Health route
 app.get("/health", (_req, res) => {
   res.status(200).json({
     success: true,
     status: "ok",
     message: "KhataTrack API running",
+    database: "Connected",
   });
 });
 
