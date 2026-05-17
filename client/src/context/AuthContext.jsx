@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import api from '../services/api.js';
 import { closeSocket } from '../services/socket.js';
+import { clearAccessToken, getAccessToken, setAccessToken } from '../services/tokenStore.js';
 
 const AuthContext = createContext(null);
 
@@ -11,7 +12,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     async function loadUser() {
       try {
-        if (localStorage.getItem('accessToken')) {
+        if (getAccessToken()) {
           const { data } = await api.get('/auth/me');
           setUser(data.user);
         }
@@ -24,15 +25,13 @@ export function AuthProvider({ children }) {
 
   async function login(payload) {
     const { data } = await api.post('/auth/login', payload);
-    localStorage.setItem('accessToken', data.accessToken);
-    localStorage.setItem('refreshToken', data.refreshToken);
+    setAccessToken(data.accessToken);
     setUser(data.user);
   }
 
   async function register(payload) {
     const { data } = await api.post('/auth/register', payload);
-    localStorage.setItem('accessToken', data.accessToken);
-    localStorage.setItem('refreshToken', data.refreshToken);
+    setAccessToken(data.accessToken);
     setUser(data.user);
   }
 
@@ -40,8 +39,7 @@ export function AuthProvider({ children }) {
     try {
       await api.post('/auth/logout');
     } finally {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
+      clearAccessToken();
       closeSocket();
       setUser(null);
     }

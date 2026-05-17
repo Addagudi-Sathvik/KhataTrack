@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../services/api.js';
 import { fetchMe } from '../../store/slices/authSlice.js';
 import { setAccessToken } from '../../services/tokenStore.js';
 import LoadingScreen from '../ui/LoadingScreen.jsx';
@@ -13,7 +13,7 @@ export default function ProtectedRoute({ children }) {
   useEffect(() => {
     async function bootstrap() {
       try {
-        const { data } = await axios.post('/api/auth/refresh', {}, { withCredentials: true });
+        const { data } = await api.post('/auth/refresh');
         setAccessToken(data.accessToken);
       } catch {
         /* no active session */

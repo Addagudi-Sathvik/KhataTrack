@@ -20,6 +20,7 @@ import { loginRules, passwordRules, registerRules } from '../validations/authVal
 const router = express.Router();
 
 router.post('/register', authLimiter, registerRules, validate, register);
+router.post('/signup', authLimiter, registerRules, validate, register);
 router.post('/login', authLimiter, loginRules, validate, login);
 router.post('/google', authLimiter, googleLogin);
 router.post('/refresh', refresh);

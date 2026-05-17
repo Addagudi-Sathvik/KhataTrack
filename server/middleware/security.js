@@ -4,7 +4,11 @@ import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 import hpp from 'hpp';
 
-const allowedOrigins = ['http://localhost:5173', process.env.CLIENT_URL].filter(Boolean);
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://khatatrack.vercel.app',
+  process.env.CLIENT_URL
+].filter(Boolean);
 
 export const corsConfig = {
   origin: allowedOrigins,

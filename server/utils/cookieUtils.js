@@ -1,10 +1,13 @@
 const REFRESH_COOKIE = 'refreshToken';
 
+const sameSite = process.env.NODE_ENV === 'production' ? 'none' : 'lax';
+const secure = process.env.NODE_ENV === 'production';
+
 export function setRefreshCookie(res, token) {
   res.cookie(REFRESH_COOKIE, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure,
+    sameSite,
     maxAge: 7 * 24 * 60 * 60 * 1000,
     path: '/api/auth'
   });
@@ -13,8 +16,8 @@ export function setRefreshCookie(res, token) {
 export function clearRefreshCookie(res) {
   res.clearCookie(REFRESH_COOKIE, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure,
+    sameSite,
     path: '/api/auth'
   });
 }
