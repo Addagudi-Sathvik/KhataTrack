@@ -1,65 +1,46 @@
-import dns from 'dns';
-import mongoose from 'mongoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import logger from '../utils/logger.js';
-
-let memoryServer;
+import mongoose from "mongoose";
+import logger from "../utils/logger.js";
 
 function maskMongoUri(uri) {
-  if (!uri) return 'not set';
+  if (!uri) return "not set";
 
-  try {
-    const parsed = new URL(uri);
-    if (parsed.password) parsed.password = '****';
-    return parsed.toString();
-  } catch {
-    return uri.replace(/(mongodb(?:\+srv)?:\/\/[^:\s]+:)([^@\s]+)(@)/i, '$1****$3');
-  }
-}
-
-function normalizeMongoUri(uri) {
-  const trimmed = uri?.trim();
-  if (!trimmed) return '';
-
-  // Handles accidental .env values like MONGO_URI=MONGO_URI=mongodb+srv://...
-  const nestedEnvPrefix = 'MONGO_URI=';
-  if (trimmed.startsWith(nestedEnvPrefix)) {
-    return trimmed.slice(nestedEnvPrefix.length).trim();
-  }
-
-  return trimmed;
+  return uri.replace(
+    /(mongodb(?:\+srv)?:\/\/[^:\s]+:)([^@\s]+)(@)/i,
+    "$1****$3"
+  );
 }
 
 export async function connectDB() {
   try {
-    dns.setServers(['8.8.8.8', '8.8.4.4']);
-    logger.info('DNS servers set for MongoDB SRV lookup: 8.8.8.8, 8.8.4.4');
 
-    const mongoUri = normalizeMongoUri(process.env.MONGO_URI);
-    process.env.MONGO_URI = mongoUri;
+    const mongoUri = process.env.MONGO_URI?.trim();
 
-    logger.info(`MONGO_URI loaded: ${mongoUri ? 'yes' : 'no'}`);
-    logger.info(`MONGO_URI target: ${maskMongoUri(mongoUri)}`);
+    logger.info(
+      `MONGO_URI loaded: ${mongoUri ? "yes" : "no"}`
+    );
 
-    if (!mongoUri && process.env.NODE_ENV !== 'production') {
-      memoryServer = await MongoMemoryServer.create();
-      process.env.MONGO_URI = memoryServer.getUri();
-      logger.info(`MONGO_URI target: ${maskMongoUri(process.env.MONGO_URI)}`);
-      logger.info('Using in-memory MongoDB for local development');
+    logger.info(
+      `Mongo target: ${maskMongoUri(mongoUri)}`
+    );
+
+    if (!mongoUri) {
+      throw new Error("MONGO_URI missing");
     }
 
-    mongoose.set('strictQuery', true);
-    await mongoose.connect(process.env.MONGO_URI);
-    logger.info('✅ MongoDB Connected');
+    mongoose.set("strictQuery", true);
+
+    const conn = await mongoose.connect(mongoUri);
+
+    logger.info(
+      `✅ MongoDB Connected: ${conn.connection.host}`
+    );
+
   } catch (error) {
-    logger.error(`MongoDB connection failed: ${error.message}`);
 
-    if (error.message?.includes('querySrv') || error.code === 'ECONNREFUSED') {
-      logger.error(
-        'MongoDB Atlas SRV DNS lookup failed. If mongodb+srv:// keeps failing on this network, use the standard mongodb:// connection string from Atlas instead.'
-      );
-    }
+    logger.error(
+      `❌ MongoDB connection failed: ${error.message}`
+    );
 
-    throw error;
+    process.exit(1);
   }
 }
