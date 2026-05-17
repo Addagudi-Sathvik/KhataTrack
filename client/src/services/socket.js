@@ -7,7 +7,8 @@ export function getSocket() {
   const token = getAccessToken();
   if (!token) return null;
   if (!socket) {
-    socket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000', {
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || import.meta.env.VITE_API_URL;
+    socket = io(socketUrl, {
       auth: { token },
       transports: ['websocket']
     });

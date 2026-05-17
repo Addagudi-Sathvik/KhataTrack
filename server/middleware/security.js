@@ -4,8 +4,10 @@ import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 import hpp from 'hpp';
 
+const allowedOrigins = ['http://localhost:5173', process.env.CLIENT_URL].filter(Boolean);
+
 export const corsConfig = {
-  origin: process.env.CLIENT_URL?.split(',') || 'http://localhost:5173',
+  origin: allowedOrigins,
   credentials: true
 };
 
