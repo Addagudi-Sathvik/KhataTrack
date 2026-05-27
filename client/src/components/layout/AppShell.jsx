@@ -129,7 +129,7 @@ export default function AppShell() {
       </motion.aside>
 
       <div className="md:ml-64">
-        <header className="sticky top-0 z-20 border-b border-white/10 bg-[#0B0F19]/82 flex items-center justify-between h-16 px-6">
+        <header className="sticky top-0 z-20 border-b border-white/10 bg-[#0B0F19]/82 flex items-center justify-between h-24 px-6">
           <div className="flex items-center gap-4">
             <img src={KhataLogo} alt="KhataTrack" className="h-10 w-auto object-contain" />
             <div>
